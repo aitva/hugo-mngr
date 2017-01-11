@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
+	"net/http"
 )
 
 // Page represet a wiki page.
@@ -29,17 +29,20 @@ func loadPage(title string) (*Page, error) {
 	}, nil
 }
 
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/view/"):]
+	p, err := loadPage(title)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "fail to load page: %v", title)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html")
+	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+}
+
 func main() {
-	p1 := &Page{Title: "TestPage", Body: []byte("This is a sample page.")}
-	err := p1.save()
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
-		os.Exit(1)
-	}
-	p2, err := loadPage("TestPage")
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
-		os.Exit(1)
-	}
-	fmt.Println(string(p2.Body))
+	http.HandleFunc("/view/", viewHandler)
+	http.ListenAndServe(":8080", nil)
 }
