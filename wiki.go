@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
@@ -29,6 +30,12 @@ func loadPage(title string) (*Page, error) {
 	}, nil
 }
 
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	t, _ := template.ParseFiles(tmpl)
+	w.Header().Set("Content-Type", "text/html")
+	t.Execute(w, p)
+}
+
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, err := loadPage(title)
@@ -38,8 +45,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "fail to load page: %v", title)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+	renderTemplate(w, "view.html", p)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,12 +54,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
-		"<form action='/save/%s' method='POST'>"+
-		"<textarea name='body'>%s</textarea></br>"+
-		"<input type='submit' value='Save' />"+
-		"</form>",
-		p.Title, p.Title, p.Body)
+	renderTemplate(w, "edit.html", p)
 }
 
 func main() {
