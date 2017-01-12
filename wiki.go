@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -40,9 +39,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, err := loadPage(title)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "fail to load page: %v", title)
+		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
 	}
 	renderTemplate(w, "view.html", p)
