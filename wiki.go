@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	PagesPath = "wiki"
+	pagesPath = "wiki"
 )
 
 // Page represet a wiki page.
@@ -17,12 +17,12 @@ type Page struct {
 }
 
 func (p *Page) save() error {
-	filename := PagesPath + "/" + p.Title + ".txt"
+	filename := pagesPath + "/" + p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 func loadPage(title string) (*Page, error) {
-	filename := PagesPath + "/" + title + ".txt"
+	filename := pagesPath + "/" + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
