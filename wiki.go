@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	pagesPath = "wiki"
+	pagesPath = "data"
+	tmplPath  = "tmpl"
 )
 
 var (
-	templates = template.Must(template.ParseFiles("edit.html", "view.html"))
+	templates = template.Must(template.ParseFiles(tmplPath+"/edit.html", tmplPath+"/view.html"))
 	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 )
 
