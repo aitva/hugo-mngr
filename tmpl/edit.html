@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Edit - {{ fmtTitle .Title}}</title>
+        <meta charset="utf-8" />
+        <link type="text/css" rel="stylesheet" href="/static/style.css" />
+        <title>Mngr - {{ fmtTitle .Page.Title}}</title>
     </head>
     <body>
-        <h1>Editing {{ fmtTitle .Title}}</h1>
-        <form action="/save/{{.Title}}" method="POST">
+        {{ template "header.html" . }}
+        {{ template "nav.html" . }}
+        <form id="article-group" action="/save/{{.Page.Title}}" method="POST">
             <div>
-                <textarea name="body" rows="20" cols="80">{{printf "%s" .Body}}</textarea>
+                <textarea id="textarea-body" name="body" rows="20" cols="80">{{printf "%s" .Page.Body}}</textarea>
             </div>
             <div>
                 <input type="submit" value="Save" />

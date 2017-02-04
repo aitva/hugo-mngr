@@ -3,13 +3,13 @@
     <head>
         <meta charset="utf-8" />
         <link type="text/css" rel="stylesheet" href="/static/style.css" />
-        <title>View - {{ fmtTitle .Title }}</title>
+        <title>Mngr - {{ fmtTitle .Page.Title }}</title>
     </head>
     <body>
-        <div id="header-group">
-            <header>Hugo Manager</header>
-            <nav>[<a href="/edit/{{.Title}}">edit</a>]</nav>
+        {{ template "header.html" . }}
+        {{ template "nav.html" . }}
+        <div id="article-group">
+            <article>{{ renderMD .Page.Body }}</article>
         </div>
-        <article>{{ renderMD .Body }}</article>
     </body>
 </html>

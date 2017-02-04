@@ -55,6 +55,11 @@ func loadPage(title string) (*Page, error) {
 	}, nil
 }
 
+type View struct {
+	Action string
+	Page   *Page
+}
+
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validPath.FindStringSubmatch(r.URL.Path)
@@ -67,8 +72,8 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	}
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates.ExecuteTemplate(w, tmpl, p)
+func renderTemplate(w http.ResponseWriter, tmpl string, v *View) {
+	err := templates.ExecuteTemplate(w, tmpl, v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -85,7 +90,11 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
 	}
-	renderTemplate(w, "view.html", p)
+	v := &View{
+		Action: "view",
+		Page:   p,
+	}
+	renderTemplate(w, "view.html", v)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -93,7 +102,11 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	renderTemplate(w, "edit.html", p)
+	v := &View{
+		Action: "edit",
+		Page:   p,
+	}
+	renderTemplate(w, "edit.html", v)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
