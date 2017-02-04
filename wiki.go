@@ -5,6 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
+
+	"fmt"
+	"os"
+
+	"github.com/russross/blackfriday"
 )
 
 const (
@@ -12,8 +18,17 @@ const (
 	tmplPath  = "tmpl"
 )
 
+var tmplFunc = template.FuncMap{
+	"renderMD": func(data []byte) template.HTML {
+		return template.HTML(blackfriday.MarkdownCommon(data))
+	},
+	"fmtTitle": func(title string) string {
+		return strings.Title(title)
+	},
+}
+
 var (
-	templates = template.Must(template.ParseFiles(tmplPath+"/edit.html", tmplPath+"/view.html"))
+	templates = template.Must(template.New("main").Funcs(tmplFunc).ParseGlob(tmplPath + "/*.html"))
 	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 )
 
@@ -48,6 +63,7 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 			return
 		}
 		fn(w, r, m[2])
+		fmt.Println(r.RemoteAddr, r.Method, r.URL.Path)
 	}
 }
 
@@ -92,9 +108,15 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 func main() {
+	const addr = ":8080"
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Listening on " + addr)
+	err := http.ListenAndServe(addr, nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
