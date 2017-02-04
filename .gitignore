@@ -23,3 +23,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+# Ignore golang/dep files
+lock.json
+manifest.json
+vendor
