@@ -1,7 +1,5 @@
 * {
     box-sizing: border-box;
-    /*margin: 0;
-    padding: 0;*/
 }
 
 h1, h2, h3 {
@@ -55,4 +53,7 @@ nav {
 /* Resizable div: http://stackoverflow.com/a/15866077 */
 #textarea-body {
     width: 100%;
+    height: 40vh;
+    resize: vertical;
+    font:1em/1.50em serif;
 }
