@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    {{template "head.html" .}}
+    <body>
+        {{template "header.html" .}}
+        <div id="nav-container">
+            <div id="nav-page">{{.Page.Filename}}</div>
+            <div id="nav-title">{{fmtTitle .Action}}</div>
+            <nav>New: [<a href="#">folder</a>] [<a href="#">file</a>]</nav>
+        </div>
+        <div id="article-container">
+            <ul>
+                {{range .Files}}
+                <li>{{.}}</li>
+                {{end}}
+            </ul>
+        </div>
+    </body>
+</html>

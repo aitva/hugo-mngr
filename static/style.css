@@ -12,7 +12,7 @@ body {
     font:1.2em/1.62em sans-serif;
 }
 
-#header-group {
+#header-container {
     width: 100%;
     margin: 0 auto;
     padding: 0.5em;
@@ -23,7 +23,8 @@ header {
     text-align: center;
 }
 
-#nav-group {
+/* "justify-self" see: http://stackoverflow.com/a/33856609 */
+#nav-container {
     width: 100%;
     margin-top: 1em;
     padding: 0.2em;
@@ -31,20 +32,19 @@ header {
 
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
 }
+#nav-page {}
 
 #nav-title {
     font-size: 1.2em;
-    margin-left: auto;
+    margin: auto;
 }
 
-nav {
-    margin-left: auto;
-}
+nav {}
 
-#article-group {
+#article-container {
     width: 100%;
     padding: 0.5em;
     margin-top: 1em;

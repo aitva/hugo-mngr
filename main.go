@@ -58,6 +58,7 @@ func loadPage(title string) (*Page, error) {
 type View struct {
 	Action string
 	Page   *Page
+	Files  []string
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, v *View) {
@@ -81,7 +82,23 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/view/welcome.md", http.StatusFound)
+	files, err := ioutil.ReadDir(pagesPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	names := make([]string, len(files))
+	for i, f := range files {
+		names[i] = f.Name()
+	}
+	v := &View{
+		Action: "index",
+		Page: &Page{
+			Filename: "/",
+		},
+		Files: names,
+	}
+	renderTemplate(w, "index.html", v)
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, filename string) {

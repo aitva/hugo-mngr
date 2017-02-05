@@ -4,7 +4,7 @@
     <body>
         {{template "header.html" .}}
         {{template "nav.html" .}}
-        <form id="article-group" action="/save/{{.Page.Filename}}" method="POST">
+        <form id="article-container" action="/save/{{.Page.Filename}}" method="POST">
             <div>
                 <textarea id="textarea-body" name="body" rows="20" cols="80">{{printf "%s" .Page.Body}}</textarea>
             </div>
