@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link type="text/css" rel="stylesheet" href="/static/style.css" />
-        <title>Mngr - {{ fmtTitle .Page.Title }}</title>
-    </head>
+    {{template "head.html" .}}
     <body>
-        {{ template "header.html" . }}
-        {{ template "nav.html" . }}
+        {{template "header.html" .}}
+        {{template "nav.html" .}}
         <div id="article-group">
-            <article>{{ renderMD .Page.Body }}</article>
+            <article>{{renderMD .Page.Body}}</article>
         </div>
     </body>
 </html>
