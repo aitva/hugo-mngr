@@ -14,7 +14,6 @@ body {
 
 #header-container {
     width: 100%;
-    margin: 0 auto;
     padding: 0.5em;
 }
 
@@ -27,7 +26,7 @@ header {
 #nav-container {
     width: 100%;
     margin-top: 1em;
-    padding: 0.2em;
+    padding: 0.25em;
     box-shadow: 0px 1px 4px;
 
     display: flex;
@@ -53,7 +52,7 @@ header {
 
 #article-container {
     width: 100%;
-    padding: 0.5em;
+    padding: 0.25em;
     margin-top: 1em;
 }
 
@@ -63,4 +62,15 @@ header {
     height: 40vh;
     resize: vertical;
     font:1em/1.50em serif;
+}
+
+#footer-container {
+    width: 100%;
+    padding: 0.25em;
+    margin-top: 1em;
+    display: flex;
+}
+
+#footer-container footer {
+    margin-left: auto;
 }

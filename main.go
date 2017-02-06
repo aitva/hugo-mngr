@@ -28,7 +28,12 @@ var tmplFunc = template.FuncMap{
 }
 
 var (
-	templates = template.Must(template.New("main").Funcs(tmplFunc).ParseGlob(tmplPath + "/*.html"))
+	templates = template.Must(
+		template.Must(
+			template.New("main").
+				Funcs(tmplFunc).
+				ParseGlob(tmplPath + "/*.html")).
+			ParseGlob(tmplPath + "/partial/*.html"))
 	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+[a-zA-Z0-9.]*)$")
 )
 
