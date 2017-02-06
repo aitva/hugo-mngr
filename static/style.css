@@ -31,18 +31,25 @@ header {
     box-shadow: 0px 1px 4px;
 
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
 }
-#nav-page {}
 
-#nav-title {
+#nav-container .box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+#nav-container .file > span {
+    margin-right: auto;
+}
+
+#nav-container .title > span {
     font-size: 1.2em;
-    margin: auto;
 }
 
-nav {}
+#nav-container .nav > nav {
+    margin-left: auto;
+}
 
 #article-container {
     width: 100%;

@@ -3,11 +3,7 @@
     {{template "head.html" .}}
     <body>
         {{template "header.html" .}}
-        <div id="nav-container">
-            <div id="nav-page">{{.Page.Filename}}</div>
-            <div id="nav-title">{{fmtTitle .Action}}</div>
-            <nav>New: [<a href="#">folder</a>] [<a href="#">file</a>]</nav>
-        </div>
+        {{template "nav.html" .}}
         <div id="article-container">
             <ul>
                 {{range .Files}}

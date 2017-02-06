@@ -1,5 +1,18 @@
 <div id="nav-container">
-    <div id="nav-page">{{.Page.Filename}}</div>
-    <div id="nav-title">{{fmtTitle .Action}}</div>
-    <nav>[<a href="/view/{{.Page.Filename}}">view</a>] [<a href="/edit/{{.Page.Filename}}">edit</a>]</nav>
+    <div class="box file"><span>{{.Page.Filename}}</span></div>
+    <div class="box title"><span>{{fmtTitle .Action}}</span></div>
+    <div class="box nav">
+        {{if eq .Page.Filename "/"}}
+        <nav>
+            <span>New: </span>
+            <span>[<a href="#">file</a>]</span>
+            <span>[<a href="#">folder</a>]</span>
+        </nav>
+        {{else}}
+        <nav>
+            <span>[<a href="/view/{{.Page.Filename}}">view</a>]</span>
+            <span>[<a href="/edit/{{.Page.Filename}}">edit</a>]</span>
+        </nav>
+        {{end}}
+    </div>
 </div>
