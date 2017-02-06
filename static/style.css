@@ -12,6 +12,21 @@ body {
     font:1.2em/1.62em sans-serif;
 }
 
+ul.directory {
+    list-style: none;
+    padding: 0;
+}
+
+li.file::before {
+    content: "\1f5b9";
+    margin: 0 1em;
+}
+
+li.directory::before {
+    content: "\1f4c1";
+    margin: 0 1em;
+}
+
 #header-container {
     width: 100%;
     padding: 0.5em;

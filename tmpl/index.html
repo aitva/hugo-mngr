@@ -5,9 +5,17 @@
         {{template "header.html" .}}
         {{template "nav.html" .}}
         <div id="article-container">
-            <ul>
+            <ul class="directory">
                 {{range .Files}}
-                <li><a href="/view/{{.}}">{{.}}</a></li>
+                    {{if .IsDir}}
+                        <li class="directory">
+                            <a href="#">{{.Name}}</a>
+                        </li>
+                    {{else}}
+                        <li class="file">
+                            <a href="/view/{{.Name}}">{{.Name}}</a>
+                        </li>
+                    {{end}}
                 {{end}}
             </ul>
         </div>

@@ -60,10 +60,15 @@ func loadPage(title string) (*Page, error) {
 	}, nil
 }
 
+type File struct {
+	Name  string
+	IsDir bool
+}
+
 type View struct {
 	Action string
 	Page   *Page
-	Files  []string
+	Files  []File
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, v *View) {
@@ -92,11 +97,21 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	names := make([]string, 0, len(files))
+	dstFiles := make([]File, 0, len(files))
+	dstFolders := make([]File, 0, len(files))
 	for _, f := range files {
 		name := f.Name()
-		if name[0] != '.' {
-			names = append(names, name)
+		if name[0] == '.' {
+			continue
+		}
+		f := File{
+			Name:  name,
+			IsDir: f.IsDir(),
+		}
+		if f.IsDir {
+			dstFolders = append(dstFolders, f)
+		} else {
+			dstFiles = append(dstFiles, f)
 		}
 	}
 	v := &View{
@@ -104,7 +119,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		Page: &Page{
 			Filename: "/",
 		},
-		Files: names,
+		Files: append(dstFolders, dstFiles...),
 	}
 	renderTemplate(w, "index.html", v)
 }
