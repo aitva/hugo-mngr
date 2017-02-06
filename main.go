@@ -87,9 +87,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	names := make([]string, len(files))
-	for i, f := range files {
-		names[i] = f.Name()
+	names := make([]string, 0, len(files))
+	for _, f := range files {
+		name := f.Name()
+		if name[0] != '.' {
+			names = append(names, name)
+		}
 	}
 	v := &View{
 		Action: "index",
