@@ -1,14 +1,12 @@
-package main
+package hugomngr
 
 import (
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
-
-	"fmt"
-	"os"
 
 	"github.com/russross/blackfriday"
 )
@@ -37,41 +35,20 @@ var (
 	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+[a-zA-Z0-9.]*)$")
 )
 
-// Page represet a wiki page.
-type Page struct {
-	Filename string
-	Body     []byte
-}
-
-func (p *Page) save() error {
-	path := pagesPath + "/" + p.Filename
-	return ioutil.WriteFile(path, p.Body, 0600)
-}
-
-func loadPage(title string) (*Page, error) {
-	path := pagesPath + "/" + title
-	body, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	return &Page{
-		Filename: title,
-		Body:     body,
-	}, nil
-}
-
 type File struct {
 	Name  string
 	IsDir bool
 }
 
-type View struct {
+// ViewInfo contains the minimum informations needed
+// to render a Template.
+type ViewInfo struct {
 	Action string
 	Page   *Page
 	Files  []File
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, v *View) {
+func renderTemplate(w http.ResponseWriter, tmpl string, v *ViewInfo) {
 	err := templates.ExecuteTemplate(w, tmpl, v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -79,7 +56,7 @@ func renderTemplate(w http.ResponseWriter, tmpl string, v *View) {
 	}
 }
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func MakeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
@@ -91,7 +68,7 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	}
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir(pagesPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -114,7 +91,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			dstFiles = append(dstFiles, f)
 		}
 	}
-	v := &View{
+	v := &ViewInfo{
 		Action: "index",
 		Page: &Page{
 			Filename: "/",
@@ -124,32 +101,32 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index.html", v)
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request, filename string) {
+func ViewHandler(w http.ResponseWriter, r *http.Request, filename string) {
 	p, err := loadPage(filename)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+filename, http.StatusFound)
 		return
 	}
-	v := &View{
+	v := &ViewInfo{
 		Action: "view",
 		Page:   p,
 	}
 	renderTemplate(w, "view.html", v)
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request, filename string) {
+func EditHandler(w http.ResponseWriter, r *http.Request, filename string) {
 	p, err := loadPage(filename)
 	if err != nil {
 		p = &Page{Filename: filename}
 	}
-	v := &View{
+	v := &ViewInfo{
 		Action: "edit",
 		Page:   p,
 	}
 	renderTemplate(w, "edit.html", v)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request, filename string) {
+func SaveHandler(w http.ResponseWriter, r *http.Request, filename string) {
 	body := r.FormValue("body")
 	p := &Page{Filename: filename, Body: []byte(body)}
 	err := p.save()
@@ -158,19 +135,4 @@ func saveHandler(w http.ResponseWriter, r *http.Request, filename string) {
 		return
 	}
 	http.Redirect(w, r, "/view/"+filename, http.StatusFound)
-}
-
-func main() {
-	const addr = ":8080"
-	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	fmt.Println("Listening on " + addr)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
 }
