@@ -2,6 +2,8 @@ package hugomngr
 
 import "io/ioutil"
 
+const pagesPath = "data"
+
 // Page represet a wiki page.
 type Page struct {
 	Filename string
