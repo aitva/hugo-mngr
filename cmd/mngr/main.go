@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aitva/hugomngr"
+	"github.com/aitva/mngr"
 )
 
 const (
