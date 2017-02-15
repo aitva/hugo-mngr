@@ -11,5 +11,7 @@ Status:
 - [X] create file
 - [ ] create folder (HCI: OK)
 - [ ] display folder's content recursively
+- [ ] delete file
+- [ ] delete folder
 - [ ] render Markdown for `.md` only
 - [ ] parse pages with github.com/spf13/hugo/parser
