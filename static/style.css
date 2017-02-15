@@ -18,7 +18,7 @@ ul.directory {
 }
 
 li.file::before {
-    content: "\1f5b9";
+    content: "\1F4C3";
     margin: 0 1em;
 }
 
