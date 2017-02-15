@@ -8,6 +8,9 @@
             <span>[<a href="/new/file">file</a>]</span>
             <span>[<a href="/new/folder">folder</a>]</span>
         </nav>
+        {{else if eq .Page.Filename ""}}
+        <nav>
+        </nav>
         {{else}}
         <nav>
             <span>[<a href="/view/{{.Page.Filename}}">view</a>]</span>
