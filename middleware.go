@@ -1,4 +1,4 @@
-package hugomngr
+package mngr
 
 import "net/http"
 

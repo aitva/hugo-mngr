@@ -1,8 +1,11 @@
-package hugomngr
+package mngr
 
 import (
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type (
@@ -21,6 +24,26 @@ type (
 		Files  []File
 	}
 )
+
+// MakeLogMiddleware create a logging middleware who wan be plugged into the
+// default Go http.Server. The middleware traces every request and handle
+// the response if mngr.Handler return 0 and an error.
+func MakeLogMiddleware(out io.Writer) func(h Handler) http.Handler {
+	return func(h Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t := time.Now()
+			code, err := h.ServeHTTP(w, r)
+			if code == 0 && err != nil {
+				code = http.StatusInternalServerError
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(code)
+				fmt.Fprintln(w, err)
+			}
+			elapsed := fmt.Sprintf("%0.3fs", time.Since(t).Seconds())
+			fmt.Fprintln(out, r.RemoteAddr, elapsed, code, r.Method, r.URL.Path, err)
+		})
+	}
+}
 
 // MakeIndexHandler return an handler for the index page.
 // The handler will list all the file present in dataPath.
