@@ -48,12 +48,14 @@ func main() {
 	view := log(tmpl(valid(mngr.HandlerFunc(mngr.ViewHandler))))
 	edit := log(tmpl(valid(mngr.HandlerFunc(mngr.EditHandler))))
 	save := log(tmpl(valid(mngr.HandlerFunc(mngr.SaveHandler))))
+	new := log(tmpl(mngr.HandlerFunc(mngr.NewHandler)))
 	filesrv := log(mngr.HandlerFunc(fileHandler))
 
 	http.Handle("/", index)
 	http.Handle("/view/", view)
 	http.Handle("/edit/", edit)
 	http.Handle("/save/", save)
+	http.Handle("/new/", new)
 	http.Handle("/static/", filesrv)
 
 	fmt.Println("Listening on " + addr)

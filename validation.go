@@ -2,7 +2,6 @@ package mngr
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"regexp"
 )
@@ -37,7 +36,10 @@ func MakeValidURLMiddleware() Middleware {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {
 			m := validPath.FindStringSubmatch(r.URL.Path)
 			if m == nil {
-				return 0, errors.New("URL validation failed")
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("bad request: URL validation failed"))
+				return http.StatusBadRequest, nil
 			}
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, validURLKey, ValidURL{

@@ -8,7 +8,8 @@ Status:
 - [x] display folder's content
 - [x] display file content
 - [x] edit file content
-- [ ] create file (IHM missing)
-- [ ] create folder
+- [X] create file
+- [ ] create folder (HCI: OK)
 - [ ] display folder's content recursively
+- [ ] render Markdown for `.md` only
 - [ ] parse pages with github.com/spf13/hugo/parser

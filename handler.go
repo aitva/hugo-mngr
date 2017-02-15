@@ -20,6 +20,7 @@ type (
 	// to render a Template.
 	ViewInfo struct {
 		Action string
+		Value  string
 		Page   *Page
 		Files  []File
 	}
@@ -127,4 +128,35 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	}
 	http.Redirect(w, r, "/view/"+valid.Value, http.StatusFound)
 	return http.StatusFound, nil
+}
+
+func NewHandler(w http.ResponseWriter, r *http.Request) (int, error) {
+	value := r.URL.Path[len("/new/"):]
+	if value != "file" && value != "folder" {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("bad request"))
+		return http.StatusBadRequest, nil
+	}
+
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		v := &ViewInfo{
+			Action: "new " + value,
+			Value:  value,
+			Page:   &Page{Filename: ""},
+		}
+		t, _ := TemplateFromCtx(r.Context())
+		err := t.ExecuteTemplate(w, "new.html", v)
+		return 200, err
+	}
+
+	if value == "file" {
+		http.Redirect(w, r, "/edit/"+name, http.StatusFound)
+		return http.StatusFound, nil
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusNotImplemented)
+	w.Write([]byte("not implemented"))
+	return http.StatusNotImplemented, nil
 }
