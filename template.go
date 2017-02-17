@@ -9,7 +9,15 @@ import (
 	"github.com/russross/blackfriday"
 )
 
-type templateCtxKey int
+type (
+	templateCtxKey int
+
+	// TemplateInfo contains the field common to every template.
+	TemplateInfo struct {
+		Action string
+		Value  string
+	}
+)
 
 var templateKey = templateCtxKey(0)
 

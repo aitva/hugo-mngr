@@ -9,6 +9,7 @@ const pagesPath = "data"
 
 // Page represet a wiki page.
 type Page struct {
+	TemplateInfo
 	Filename string
 	Body     []byte
 }

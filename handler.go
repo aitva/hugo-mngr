@@ -9,24 +9,6 @@ import (
 	"time"
 )
 
-type (
-	// File represent a File on disk. It is use when rendering templates.
-	// TODO: remove
-	File struct {
-		Name  string
-		IsDir bool
-	}
-
-	// ViewInfo contains the minimum informations needed
-	// to render a Template.
-	ViewInfo struct {
-		Action string
-		Value  string
-		Page   *Page
-		Files  []File
-	}
-)
-
 // MakeLogMiddleware create a logging middleware who wan be plugged into the
 // default Go http.Server. The middleware traces every request and handle
 // the response if mngr.Handler return 0 and an error.
@@ -50,6 +32,10 @@ func MakeLogMiddleware(out io.Writer) func(h Handler) http.Handler {
 // MakeIndexHandler return an handler for the index page.
 // The handler will list all the file present in dataPath.
 func MakeIndexHandler(dataPath string) HandlerFunc {
+	type File struct {
+		Name  string
+		IsDir bool
+	}
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		files, err := ioutil.ReadDir(dataPath)
 		if err != nil {
@@ -72,13 +58,14 @@ func MakeIndexHandler(dataPath string) HandlerFunc {
 				dstFiles = append(dstFiles, f)
 			}
 		}
-		v := &ViewInfo{
-			Action: "index",
-			Page: &Page{
-				Filename: "/",
-			},
-			Files: append(dstFolders, dstFiles...),
-		}
+		v := &struct {
+			Page
+			Files []File
+		}{}
+		v.Action = "index"
+		v.Filename = "/"
+		v.Files = append(dstFolders, dstFiles...)
+
 		t, _ := TemplateFromCtx(r.Context())
 		err = t.ExecuteTemplate(w, "index.html", v)
 		return 200, err
@@ -93,12 +80,9 @@ func ViewHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 		http.Redirect(w, r, "/edit/"+valid.Value, http.StatusFound)
 		return http.StatusFound, nil
 	}
-	v := &ViewInfo{
-		Action: "view",
-		Page:   p,
-	}
+	p.Action = "view"
 	t, _ := TemplateFromCtx(r.Context())
-	err = t.ExecuteTemplate(w, "view.html", v)
+	err = t.ExecuteTemplate(w, "view.html", p)
 	return 200, err
 }
 
@@ -109,12 +93,9 @@ func EditHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	if err != nil {
 		p = &Page{Filename: valid.Value}
 	}
-	v := &ViewInfo{
-		Action: "edit",
-		Page:   p,
-	}
+	p.Action = "edit"
 	t, _ := TemplateFromCtx(r.Context())
-	err = t.ExecuteTemplate(w, "edit.html", v)
+	err = t.ExecuteTemplate(w, "edit.html", p)
 	return 200, err
 }
 
@@ -157,13 +138,15 @@ func MakeCreateHandler() HandlerFunc {
 
 		name := r.URL.Query().Get("name")
 		if name == "" {
-			v := &ViewInfo{
-				Action: "new " + valid.Value,
-				Value:  valid.Value,
-				Page:   &Page{Filename: ""},
+			p := &Page{
+				TemplateInfo: TemplateInfo{
+					Action: "new " + valid.Value,
+					Value:  valid.Value,
+				},
+				Filename: "",
 			}
 			t, _ := TemplateFromCtx(r.Context())
-			err := t.ExecuteTemplate(w, "new.html", v)
+			err := t.ExecuteTemplate(w, "new.html", p)
 			return 200, err
 		}
 
