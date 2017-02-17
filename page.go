@@ -1,6 +1,9 @@
 package mngr
 
-import "io/ioutil"
+import (
+	"io/ioutil"
+	"os"
+)
 
 const pagesPath = "data"
 
@@ -25,4 +28,9 @@ func loadPage(title string) (*Page, error) {
 		Filename: title,
 		Body:     body,
 	}, nil
+}
+
+func createFolder(name string) error {
+	err := os.Mkdir(pagesPath+"/"+name, 0600)
+	return err
 }

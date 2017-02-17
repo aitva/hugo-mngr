@@ -9,7 +9,7 @@ Status:
 - [x] display file content
 - [x] edit file content
 - [X] create file
-- [ ] create folder (HCI: OK)
+- [X] create folder
 - [ ] display folder's content recursively
 - [ ] delete file
 - [ ] delete folder

@@ -20,7 +20,9 @@ type (
 	}
 )
 
-var validURLKey = validURLCtxKey(0)
+var (
+	validURLKey = validURLCtxKey(0)
+)
 
 // ValidURLFromCtx extract a ValidURL added by MakeValidURLMiddleware from a context.
 func ValidURLFromCtx(ctx context.Context) (ValidURL, bool) {
@@ -31,9 +33,10 @@ func ValidURLFromCtx(ctx context.Context) (ValidURL, bool) {
 // MakeValidURLMiddleware create an URL validation middleware.
 // When plugged, the returned middleware add a ValidURL to the request's context.
 func MakeValidURLMiddleware() Middleware {
-	validPath := regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+[a-zA-Z0-9.]*)$")
+	validPath := regexp.MustCompile("^/([a-z/]+)/([a-zA-Z0-9]+[a-zA-Z0-9.]*)[/]?$")
 	return func(h Handler) Handler {
 		return HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, error) {
+
 			m := validPath.FindStringSubmatch(r.URL.Path)
 			if m == nil {
 				w.Header().Set("Content-Type", "text/plain")

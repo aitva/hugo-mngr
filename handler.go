@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -130,33 +131,54 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	return http.StatusFound, nil
 }
 
-func NewHandler(w http.ResponseWriter, r *http.Request) (int, error) {
-	value := r.URL.Path[len("/new/"):]
-	if value != "file" && value != "folder" {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("bad request"))
-		return http.StatusBadRequest, nil
+// FolderHandler is a HandlerFunc use to create new folder.
+func FolderHandler(w http.ResponseWriter, r *http.Request) (int, error) {
+	valid, _ := ValidURLFromCtx(r.Context())
+	err := createFolder(valid.Value)
+	if err != nil {
+		return 0, err
 	}
+	// TODO: redirect to folder listing.
+	http.Redirect(w, r, "/index/", http.StatusFound)
+	return http.StatusFound, nil
+}
 
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		v := &ViewInfo{
-			Action: "new " + value,
-			Value:  value,
-			Page:   &Page{Filename: ""},
+// MakeCreateHandler return an HandlerFunc which deals with file and folder creation.
+func MakeCreateHandler() HandlerFunc {
+	validFilename := regexp.MustCompile("^[a-zA-Z0-9]+[a-zA-Z0-9.]*$")
+	return func(w http.ResponseWriter, r *http.Request) (int, error) {
+		valid, _ := ValidURLFromCtx(r.Context())
+		if valid.Value != "file" && valid.Value != "folder" {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("bad request"))
+			return http.StatusBadRequest, nil
 		}
-		t, _ := TemplateFromCtx(r.Context())
-		err := t.ExecuteTemplate(w, "new.html", v)
-		return 200, err
-	}
 
-	if value == "file" {
-		http.Redirect(w, r, "/edit/"+name, http.StatusFound)
+		name := r.URL.Query().Get("name")
+		if name == "" {
+			v := &ViewInfo{
+				Action: "new " + valid.Value,
+				Value:  valid.Value,
+				Page:   &Page{Filename: ""},
+			}
+			t, _ := TemplateFromCtx(r.Context())
+			err := t.ExecuteTemplate(w, "new.html", v)
+			return 200, err
+		}
+
+		if !validFilename.MatchString(name) {
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("bad request: invalid name"))
+			return http.StatusBadRequest, nil
+		}
+
+		p := "/edit/" + name
+		if valid.Value == "folder" {
+			p = "/folder/" + name
+		}
+		http.Redirect(w, r, p, http.StatusFound)
 		return http.StatusFound, nil
 	}
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusNotImplemented)
-	w.Write([]byte("not implemented"))
-	return http.StatusNotImplemented, nil
 }

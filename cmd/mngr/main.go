@@ -44,17 +44,21 @@ func main() {
 	log := mngr.MakeLogMiddleware(os.Stdout)
 	tmpl := mngr.MakeTemplateMiddleware(tmplPath)
 	valid := mngr.MakeValidURLMiddleware()
+	createHandler := mngr.MakeCreateHandler()
+
 	index := log(tmpl(mngr.MakeIndexHandler(dataPath)))
 	view := log(tmpl(valid(mngr.HandlerFunc(mngr.ViewHandler))))
 	edit := log(tmpl(valid(mngr.HandlerFunc(mngr.EditHandler))))
 	save := log(tmpl(valid(mngr.HandlerFunc(mngr.SaveHandler))))
-	new := log(tmpl(mngr.HandlerFunc(mngr.NewHandler)))
+	folder := log(tmpl(valid(mngr.HandlerFunc(mngr.FolderHandler))))
+	new := log(tmpl(valid(mngr.HandlerFunc(createHandler))))
 	filesrv := log(mngr.HandlerFunc(fileHandler))
 
 	http.Handle("/", index)
 	http.Handle("/view/", view)
 	http.Handle("/edit/", edit)
 	http.Handle("/save/", save)
+	http.Handle("/folder/", folder)
 	http.Handle("/new/", new)
 	http.Handle("/static/", filesrv)
 
