@@ -6,16 +6,15 @@
         {{template "nav.html" .}}
         <div id="article-container">
             <ul class="directory">
+                {{range .Folders}}
+                <li class="directory">
+                    <a href="#">{{.}}</a>
+                </li>
+                {{end}}
                 {{range .Files}}
-                    {{if .IsDir}}
-                        <li class="directory">
-                            <a href="#">{{.Name}}</a>
-                        </li>
-                    {{else}}
-                        <li class="file">
-                            <a href="/view/{{.Name}}">{{.Name}}</a>
-                        </li>
-                    {{end}}
+                <li class="file">
+                    <a href="/view/{{.}}">{{.}}</a>
+                </li>
                 {{end}}
             </ul>
         </div>

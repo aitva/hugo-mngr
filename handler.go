@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 )
@@ -12,9 +13,9 @@ import (
 // MakeLogMiddleware create a logging middleware who wan be plugged into the
 // default Go http.Server. The middleware traces every request and handle
 // the response if mngr.Handler return 0 and an error.
-func MakeLogMiddleware(out io.Writer) func(h Handler) http.Handler {
-	return func(h Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func MakeLogMiddleware(out io.Writer) func(h Handler) http.HandlerFunc {
+	return func(h Handler) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
 			t := time.Now()
 			code, err := h.ServeHTTP(w, r)
 			if code == 0 && err != nil {
@@ -25,46 +26,46 @@ func MakeLogMiddleware(out io.Writer) func(h Handler) http.Handler {
 			}
 			elapsed := fmt.Sprintf("%0.3fs", time.Since(t).Seconds())
 			fmt.Fprintln(out, r.RemoteAddr, elapsed, code, r.Method, r.URL.Path, err)
-		})
+		}
 	}
+}
+
+func filterFiles(fInfos []os.FileInfo) (files, folders []string) {
+	files = make([]string, 0, len(fInfos))
+	folders = make([]string, 0, len(fInfos))
+	for _, f := range fInfos {
+		name := f.Name()
+		// Skip files starting with a dot.
+		if name[0] == '.' {
+			continue
+		}
+		if f.IsDir() {
+			folders = append(folders, name)
+		} else {
+			files = append(files, name)
+		}
+	}
+	return
 }
 
 // MakeIndexHandler return an handler for the index page.
 // The handler will list all the file present in dataPath.
 func MakeIndexHandler(dataPath string) HandlerFunc {
-	type File struct {
-		Name  string
-		IsDir bool
-	}
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
-		files, err := ioutil.ReadDir(dataPath)
+		fInfos, err := ioutil.ReadDir(dataPath)
 		if err != nil {
 			return 0, err
 		}
-		dstFiles := make([]File, 0, len(files))
-		dstFolders := make([]File, 0, len(files))
-		for _, f := range files {
-			name := f.Name()
-			if name[0] == '.' {
-				continue
-			}
-			f := File{
-				Name:  name,
-				IsDir: f.IsDir(),
-			}
-			if f.IsDir {
-				dstFolders = append(dstFolders, f)
-			} else {
-				dstFiles = append(dstFiles, f)
-			}
-		}
+		files, folders := filterFiles(fInfos)
 		v := &struct {
 			Page
-			Files []File
+			Files   []string
+			Folders []string
 		}{}
 		v.Action = "index"
 		v.Filename = "/"
-		v.Files = append(dstFolders, dstFiles...)
+		v.Files = files
+		v.Folders = folders
 
 		t, _ := TemplateFromCtx(r.Context())
 		err = t.ExecuteTemplate(w, "index.html", v)
