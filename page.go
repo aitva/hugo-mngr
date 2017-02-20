@@ -32,6 +32,6 @@ func loadPage(title string) (*Page, error) {
 }
 
 func createFolder(name string) error {
-	err := os.Mkdir(pagesPath+"/"+name, 0600)
+	err := os.Mkdir(pagesPath+"/"+name, 0700)
 	return err
 }

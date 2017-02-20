@@ -16,6 +16,7 @@ type (
 	TemplateInfo struct {
 		Action string
 		Value  string
+		Folder string
 	}
 )
 

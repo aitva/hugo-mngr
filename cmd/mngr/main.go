@@ -38,15 +38,22 @@ func fileHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	return sw.status, nil
 }
 
+func indexHandler(w http.ResponseWriter, r *http.Request) (int, error) {
+	http.Redirect(w, r, "/list/", http.StatusFound)
+	return http.StatusFound, nil
+}
+
 func main() {
 	const addr = ":8080"
 
 	log := mngr.MakeLogMiddleware(os.Stdout)
 	tmpl := mngr.MakeTemplateMiddleware(tmplPath)
 	valid := mngr.MakeValidURLMiddleware()
-	createHandler := mngr.MakeCreateHandler()
+	validFolder := mngr.MakeValidFolderMiddleware(dataPath)
+	createHandler := mngr.MakeNewHandler()
 
-	index := log(tmpl(mngr.MakeIndexHandler(dataPath)))
+	index := log(mngr.HandlerFunc(indexHandler))
+	list := log(tmpl(validFolder(mngr.MakeListHandler(dataPath))))
 	view := log(tmpl(valid(mngr.HandlerFunc(mngr.ViewHandler))))
 	edit := log(tmpl(valid(mngr.HandlerFunc(mngr.EditHandler))))
 	save := log(tmpl(valid(mngr.HandlerFunc(mngr.SaveHandler))))
@@ -55,6 +62,7 @@ func main() {
 	filesrv := log(mngr.HandlerFunc(fileHandler))
 
 	http.Handle("/", index)
+	http.Handle("/list/", list)
 	http.Handle("/view/", view)
 	http.Handle("/edit/", edit)
 	http.Handle("/save/", save)
