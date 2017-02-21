@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -29,6 +30,8 @@ func MakeLogMiddleware(out io.Writer) func(h Handler) http.HandlerFunc {
 	}
 }
 
+// filterFiles extract file name from FileInfo and separate
+// the files from the folders.
 func filterFiles(fInfos []os.FileInfo) (files, folders []string) {
 	files = make([]string, 0, len(fInfos))
 	folders = make([]string, 0, len(fInfos))
@@ -132,6 +135,8 @@ func FolderHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 
 // MakeNewHandler return an HandlerFunc which deals with file and folder creation.
 func MakeNewHandler() HandlerFunc {
+	// Safeguard, may be usefull later.
+	validName := regexp.MustCompile("^[a-zA-Z0-9]+[a-zA-Z0-9.]*$")
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		valid, _ := ValidURLFromCtx(r.Context())
 		if valid.Value != "file" && valid.Value != "folder" {
@@ -143,21 +148,27 @@ func MakeNewHandler() HandlerFunc {
 
 		name := r.URL.Query().Get("name")
 		path := r.URL.Query().Get("path")
+		isValid := true
 		if name != "" {
-			path = path + name
-			url := "/edit/" + path
-			if valid.Value == "folder" {
-				url = "/folder/" + path
+			isValid = validName.MatchString(name)
+			if isValid {
+				path = path + name
+				url := "/edit/" + path
+				if valid.Value == "folder" {
+					url = "/folder/" + path
+				}
+				http.Redirect(w, r, url, http.StatusFound)
+				return http.StatusFound, nil
 			}
-			http.Redirect(w, r, url, http.StatusFound)
-			return http.StatusFound, nil
 		}
 
 		p := &struct {
 			Page
-			Path string
+			Path    string
+			IsValid bool
 		}{
-			Path: path,
+			Path:    path,
+			IsValid: isValid,
 		}
 		p.TemplateInfo = TemplateInfo(valid)
 		p.Action = "new " + valid.Value

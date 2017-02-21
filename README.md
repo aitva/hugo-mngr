@@ -13,7 +13,7 @@ This repo is under active developement and everything might change at any time.
 - [X] display folder's content recursively
 - [X] create, view and edit file and folder recursively
 - [ ] add `back` button on list page
-- [ ] have a good look at `/` handling for folder
+- [X] have a good look at `/` handling for folder
 - [ ] delete file
 - [ ] delete folder
 - [ ] render Markdown for `.md` only

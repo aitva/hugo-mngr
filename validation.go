@@ -34,6 +34,8 @@ func ValidURLFromCtx(ctx context.Context) (ValidURL, bool) {
 	return valid, ok
 }
 
+// findFolder separate folder and file in the path.
+// Folder will be empty if there is only a file.
 func findFolder(path string) (file, folder string) {
 	i := strings.LastIndex(path, "/")
 	if i == -1 {

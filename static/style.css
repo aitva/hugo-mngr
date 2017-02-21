@@ -93,3 +93,7 @@ header {
 #footer-container footer {
     margin-left: auto;
 }
+
+.error-msg {
+    color: darkred;
+}

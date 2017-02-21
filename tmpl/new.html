@@ -5,6 +5,9 @@
         {{template "header.html" .}}
         {{template "nav.html" .}}
         <form id="article-container" action="/new/{{.Value}}" method="GET">
+            {{if not .IsValid}}
+            <div class="error-msg">Invalid name, please try again.</div>
+            {{end}}
             <div>
                 <label for="name">Enter name:</label>
                 <input type="text" name="name" />
