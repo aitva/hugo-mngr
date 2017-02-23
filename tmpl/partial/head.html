@@ -2,5 +2,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link type="text/css" rel="stylesheet" href="/static/style.css" />
-    <title>{{fmtTitle .Action}} {{if ne .Value ""}}- {{.Value}}{{end}}</title>
+    {{if ne .Value ""}}
+    <title>{{fmtTitle .Action}} - {{.Dir}}/{{.Value}}</title>
+    {{else}}
+    <title>{{fmtTitle .Action}} - /{{.Dir}}</title>
+    {{end}}
 </head>

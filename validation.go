@@ -42,7 +42,7 @@ func findFolder(path string) (file, folder string) {
 		file = path
 		return
 	}
-	file = path[i:]
+	file = path[i+1:]
 	folder = path[:i]
 	return
 }

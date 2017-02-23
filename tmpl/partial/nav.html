@@ -1,6 +1,6 @@
 <div id="nav-container">
     {{if ne .Value ""}}
-    <div class="box file"><span>{{.Dir}}{{.Value}}</span></div>
+    <div class="box file"><span>{{.Dir}}/{{.Value}}</span></div>
     {{else}}
     <div class="box file"><span>/{{.Dir}}</span></div>
     {{end}}
@@ -14,8 +14,8 @@
             </nav>
         {{else if or (eq .Action "edit") (eq .Action "view")}}
             <nav>
-                <span>[<a href="/view/{{.Filename}}">view</a>]</span>
-                <span>[<a href="/edit/{{.Filename}}">edit</a>]</span>
+                <span>[<a href="/view/{{.Path}}">view</a>]</span>
+                <span>[<a href="/edit/{{.Path}}">edit</a>]</span>
             </nav>
         {{else}}
             <nav>

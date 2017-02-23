@@ -21,7 +21,7 @@ func (p *Page) save() error {
 }
 
 func PagePathFromValidURL(v ValidURL) string {
-	return v.Dir + v.Value
+	return v.Dir + "/" + v.Value
 }
 
 func LoadPage(v ValidURL) (*Page, error) {
@@ -48,7 +48,7 @@ func NewPage(v ValidURL, body []byte) *Page {
 }
 
 func NewFolder(v ValidURL) error {
-	path := pagesPath + "/" + v.Dir + v.Value
+	path := pagesPath + "/" + v.Dir + "/" + v.Value
 	err := os.Mkdir(path, 0700)
 	return err
 }
