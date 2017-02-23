@@ -1,21 +1,25 @@
 <div id="nav-container">
-    <div class="box file"><span>/{{.Filename}}</span></div>
+    {{if ne .Value ""}}
+    <div class="box file"><span>{{.Dir}}{{.Value}}</span></div>
+    {{else}}
+    <div class="box file"><span>/{{.Dir}}</span></div>
+    {{end}}
     <div class="box title"><span>{{fmtTitle .Action}}</span></div>
     <div class="box nav">
         {{if eq .Action "list"}}
-        <nav>
-            <span>&#43;</span>
-            <span>[<a href="/new/file?path={{.Filename}}">file</a>]</span>
-            <span>[<a href="/new/folder?path={{.Filename}}">folder</a>]</span>
-        </nav>
-        {{else if eq .Filename ""}}
-        <nav>
-        </nav>
+            <nav>
+                <span>&#43;</span>
+                <span>[<a href="/new/file?path={{.Dir}}">file</a>]</span>
+                <span>[<a href="/new/folder?path={{.Dir}}">folder</a>]</span>
+            </nav>
+        {{else if or (eq .Action "edit") (eq .Action "view")}}
+            <nav>
+                <span>[<a href="/view/{{.Filename}}">view</a>]</span>
+                <span>[<a href="/edit/{{.Filename}}">edit</a>]</span>
+            </nav>
         {{else}}
-        <nav>
-            <span>[<a href="/view/{{.Filename}}">view</a>]</span>
-            <span>[<a href="/edit/{{.Filename}}">edit</a>]</span>
-        </nav>
+            <nav>
+            </nav>
         {{end}}
     </div>
 </div>

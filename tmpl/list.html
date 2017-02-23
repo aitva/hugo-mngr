@@ -8,12 +8,12 @@
             <ul class="directory">
                 {{range .Folders}}
                 <li class="directory">
-                    <a href="/list/{{$.Folder}}{{.}}/">{{.}}</a>
+                    <a href="/list/{{$.Dir}}{{.}}/">{{.}}</a>
                 </li>
                 {{end}}
                 {{range .Files}}
                 <li class="file">
-                    <a href="/view/{{$.Folder}}{{.}}">{{.}}</a>
+                    <a href="/view/{{$.Dir}}{{.}}">{{.}}</a>
                 </li>
                 {{end}}
             </ul>

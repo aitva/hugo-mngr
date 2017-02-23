@@ -19,8 +19,8 @@ type (
 		// Value contains the object on wich this action apply.
 		// It must contain something of the form: 'filename.ext' of 'filename'
 		Value string
-		// Folder contains the name of the folder.
-		Folder string
+		// Dir contains the name of the folder.
+		Dir string
 	}
 )
 
@@ -65,7 +65,7 @@ func MakeValidURLMiddleware() Middleware {
 			ctx = context.WithValue(ctx, validURLKey, ValidURL{
 				Action: m[1],
 				Value:  file,
-				Folder: folder,
+				Dir:    folder,
 			})
 			return h.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -103,7 +103,7 @@ func MakeValidFolderMiddleware(dataPath string) Middleware {
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, validURLKey, ValidURL{
 				Action: m[1],
-				Folder: m[2],
+				Dir:    m[2],
 			})
 			return h.ServeHTTP(w, r.WithContext(ctx))
 		})

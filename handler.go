@@ -55,21 +55,20 @@ func filterFiles(fInfos []os.FileInfo) (files, folders []string) {
 func MakeListHandler(dataPath string) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) (int, error) {
 		valid, _ := ValidURLFromCtx(r.Context())
-		fInfos, err := ioutil.ReadDir(dataPath + "/" + valid.Folder)
+		fInfos, err := ioutil.ReadDir(dataPath + "/" + valid.Dir)
 		if err != nil {
 			return 0, err
 		}
 		files, folders := filterFiles(fInfos)
 		v := &struct {
-			Page
+			TemplateInfo
 			Files   []string
 			Folders []string
 		}{
-			Files:   files,
-			Folders: folders,
+			TemplateInfo: NewTemplateFromValidURL(valid),
+			Files:        files,
+			Folders:      folders,
 		}
-		v.TemplateInfo = TemplateInfo(valid)
-		v.Filename = valid.Folder
 
 		t, _ := TemplateFromCtx(r.Context())
 		err = t.ExecuteTemplate(w, "list.html", v)
@@ -80,13 +79,12 @@ func MakeListHandler(dataPath string) HandlerFunc {
 // ViewHandler is an handler use to display the content of a file.
 func ViewHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	valid, _ := ValidURLFromCtx(r.Context())
-	path := valid.Folder + valid.Value
-	p, err := loadPage(path)
+	p, err := LoadPage(valid)
 	if err != nil {
+		path := PagePathFromValidURL(valid)
 		http.Redirect(w, r, "/edit/"+path, http.StatusFound)
 		return http.StatusFound, nil
 	}
-	p.TemplateInfo = TemplateInfo(valid)
 	t, _ := TemplateFromCtx(r.Context())
 	err = t.ExecuteTemplate(w, "view.html", p)
 	return 200, err
@@ -95,12 +93,10 @@ func ViewHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 // EditHandler is an handler use to edit the content of a file.
 func EditHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	valid, _ := ValidURLFromCtx(r.Context())
-	path := valid.Folder + valid.Value
-	p, err := loadPage(path)
+	p, err := LoadPage(valid)
 	if err != nil {
-		p = &Page{Filename: path}
+		p = NewPage(valid, nil)
 	}
-	p.TemplateInfo = TemplateInfo(valid)
 	t, _ := TemplateFromCtx(r.Context())
 	err = t.ExecuteTemplate(w, "edit.html", p)
 	return 200, err
@@ -110,26 +106,23 @@ func EditHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 func SaveHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	valid, _ := ValidURLFromCtx(r.Context())
 	body := r.FormValue("body")
-	path := valid.Folder + valid.Value
-	p := &Page{Filename: path, Body: []byte(body)}
-	p.TemplateInfo = TemplateInfo(valid)
+	p := NewPage(valid, []byte(body))
 	err := p.save()
 	if err != nil {
 		return 0, err
 	}
-	http.Redirect(w, r, "/view/"+path, http.StatusFound)
+	http.Redirect(w, r, "/view/"+p.Path, http.StatusFound)
 	return http.StatusFound, nil
 }
 
 // FolderHandler is a HandlerFunc use to create new folder.
 func FolderHandler(w http.ResponseWriter, r *http.Request) (int, error) {
 	valid, _ := ValidURLFromCtx(r.Context())
-	err := createFolder(valid.Value)
+	err := NewFolder(valid)
 	if err != nil {
 		return 0, err
 	}
-	// TODO: redirect to folder listing.
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/list/"+valid.Dir, http.StatusFound)
 	return http.StatusFound, nil
 }
 
@@ -163,17 +156,14 @@ func MakeNewHandler() HandlerFunc {
 		}
 
 		p := &struct {
-			Page
+			TemplateInfo
 			Path    string
 			IsValid bool
 		}{
-			Path:    path,
-			IsValid: isValid,
+			TemplateInfo: NewTemplateFromValidURL(valid),
+			Path:         path,
+			IsValid:      isValid,
 		}
-		p.TemplateInfo = TemplateInfo(valid)
-		p.Action = "new " + valid.Value
-		p.Filename = path
-		p.Folder = path
 		t, _ := TemplateFromCtx(r.Context())
 		err := t.ExecuteTemplate(w, "new.html", p)
 		return 200, err

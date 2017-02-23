@@ -2,9 +2,5 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link type="text/css" rel="stylesheet" href="/static/style.css" />
-    {{if eq .Filename "/"}}
-    <title>Mngr</title>
-    {{else}}
-    <title>{{fmtTitle .Action}} {{if ne .Filename ""}}- {{.Filename}}{{end}}</title>
-    {{end}}
+    <title>{{fmtTitle .Action}} {{if ne .Value ""}}- {{.Value}}{{end}}</title>
 </head>

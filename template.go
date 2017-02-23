@@ -16,11 +16,20 @@ type (
 	TemplateInfo struct {
 		Action string
 		Value  string
-		Folder string
+		Dir    string
+		IsDir  bool
 	}
 )
 
 var templateKey = templateCtxKey(0)
+
+func NewTemplateFromValidURL(v ValidURL) TemplateInfo {
+	return TemplateInfo{
+		Action: v.Action,
+		Value:  v.Value,
+		Dir:    v.Dir,
+	}
+}
 
 // TemplateFromCtx extract templates added by MakeTemplateMiddleware to a context.
 func TemplateFromCtx(c context.Context) (*template.Template, bool) {
